@@ -27,6 +27,7 @@ class CustomCupertinoPageRoute<T> extends PageRoute<T> {
     RouteSettings settings,
     this.maintainState = true,
     bool fullscreenDialog = false,
+    this.pageDidAppearCallback,
   })  : assert(builder != null),
         assert(maintainState != null),
         assert(fullscreenDialog != null),
@@ -56,6 +57,8 @@ class CustomCupertinoPageRoute<T> extends PageRoute<T> {
   }
 
   final bool maintainState;
+  
+  final Function pageDidAppearCallback;
 
   Duration get transitionDuration => const Duration(milliseconds: 400);
 
@@ -92,6 +95,13 @@ class CustomCupertinoPageRoute<T> extends PageRoute<T> {
   }
 
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (this.pageDidAppearCallback != null) {
+          this.pageDidAppearCallback();
+        }
+      }
+    });
     final Widget child = builder(context);
     final Widget result = Semantics(
       scopesRoute: true,
